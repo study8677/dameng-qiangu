@@ -9,13 +9,20 @@ type VercelResponse = {
   setHeader: (key: string, value: string) => void
 }
 
-const allowedFigures = new Map([
-  ['confucius', ['孔子', '春秋', 'covers/confucius.svg']],
-  ['quyuan', ['屈原', '战国', 'covers/quyuan.svg']],
-  ['zhugeliang', ['诸葛亮', '三国', 'covers/zhugeliang.svg']],
-  ['libai', ['李白', '唐', 'covers/libai.svg']],
-  ['yuefei', ['岳飞', '宋', 'covers/yuefei.svg']],
-  ['wangyangming', ['王阳明', '明', 'covers/wangyangming.svg']],
+type FigureInput = {
+  id: string
+  name: string
+  era: string
+  cover: string
+}
+
+const allowedFigures = new Map<string, FigureInput>([
+  ['confucius', { id: 'confucius', name: '孔子', era: '春秋', cover: 'covers/confucius.svg' }],
+  ['quyuan', { id: 'quyuan', name: '屈原', era: '战国', cover: 'covers/quyuan.svg' }],
+  ['zhugeliang', { id: 'zhugeliang', name: '诸葛亮', era: '三国', cover: 'covers/zhugeliang.svg' }],
+  ['libai', { id: 'libai', name: '李白', era: '唐', cover: 'covers/libai.svg' }],
+  ['yuefei', { id: 'yuefei', name: '岳飞', era: '宋', cover: 'covers/yuefei.svg' }],
+  ['wangyangming', { id: 'wangyangming', name: '王阳明', era: '明', cover: 'covers/wangyangming.svg' }],
 ])
 
 const dreamSchema = {
@@ -43,10 +50,7 @@ const dreamSchema = {
     source: { type: 'string', enum: ['ai'] },
     title: { type: 'string' },
     summary: { type: 'string' },
-    figureId: {
-      type: 'string',
-      enum: ['confucius', 'quyuan', 'zhugeliang', 'libai', 'yuefei', 'wangyangming'],
-    },
+    figureId: { type: 'string', pattern: '^(confucius|quyuan|zhugeliang|libai|yuefei|wangyangming|custom-[a-z0-9-]+)$' },
     figureName: { type: 'string' },
     era: { type: 'string' },
     cover: { type: 'string' },
@@ -79,13 +83,14 @@ const dreamSchema = {
             items: {
               type: 'object',
               additionalProperties: false,
-              required: ['id', 'label', 'intent', 'targetId', 'preview', 'effects'],
+              required: ['id', 'label', 'intent', 'targetId', 'preview', 'result', 'effects'],
               properties: {
                 id: { type: 'string' },
                 label: { type: 'string' },
                 intent: { type: 'string' },
                 targetId: { type: 'string' },
                 preview: { type: 'string' },
+                result: { type: 'string' },
                 effects: {
                   type: 'object',
                   additionalProperties: false,
@@ -144,14 +149,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const body = normalizeBody(req.body)
-  const figureId = getString(body.figure?.id)
-  const figure = figureId ? allowedFigures.get(figureId) : null
-  if (!figure || !figureId) {
-    res.status(400).json({ error: 'Unsupported historical figure.' })
+  const figure = resolveFigure(body.figure)
+  if (!figure.ok) {
+    res.status(400).json({ error: figure.error })
     return
   }
 
-  const [figureName, era, cover] = figure
+  const { id: figureId, name: figureName, era, cover } = figure.value
   const theme = getString(body.theme) || '功业未竟'
   const style = getString(body.style) || '庄严'
   const length = getString(body.length) || '短篇'
@@ -160,12 +164,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const prompt = [
     '你是一个中文历史互动梦境游戏策划。',
-    '请只生成清朝以前历史伟人的互动梦境关卡，不要生成现代政治人物、清朝及以后人物、色情、仇恨、极端暴力或无关题材。',
+    '请只生成清朝以前历史伟人的互动梦境关卡，不要生成清朝及以后人物、现代政治人物、色情、仇恨、极端暴力或无关题材。',
     '输出必须符合 JSON Schema。不要输出 Markdown。',
     `人物：${figureName}，朝代：${era}，人物ID：${figureId}，封面：${cover}。`,
     `梦境主题：${theme}。叙事风格：${style}。长度：${length}。补充设定：${notes}。`,
     `固定字段：id 必须是 ${dreamId}，source 必须是 ai，figureId/figureName/era/cover 必须使用上面的值。`,
-    '关卡要求：5到7个 nodes；每个 node 2到4个 choices；至少3个 endings；startNodeId 必须指向第一个 node；choice.targetId 必须指向某个 node 或 ending。',
+    '关卡要求：5到7个 nodes；每个 node 2到4个 choices；至少3个 endings；startNodeId 必须指向第一个 node；choice.targetId 必须指向某个 node 或 ending；choice.result 必须写出玩家做出选择后的具体戏剧性后果。',
     '数值要求：initialStats 每项 35-75；effects 每项 -12 到 12；fate 表示天命偏差，冒险选择可增加。',
   ].join('\n')
 
@@ -205,10 +209,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return
     }
 
-    res.status(200).json({ dream: JSON.parse(output) })
+    const dream = normalizeGeneratedDream(JSON.parse(output), {
+      dreamId,
+      figureId,
+      figureName,
+      era,
+      cover,
+    })
+    res.status(200).json({ dream })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'AI proxy failed.'
     res.status(500).json({ error: message })
+  }
+}
+
+function resolveFigure(rawFigure: unknown):
+  | { ok: true; value: FigureInput }
+  | { ok: false; error: string } {
+  const figure = isRecord(rawFigure) ? rawFigure : {}
+  const figureId = getString(figure.id)
+  const official = allowedFigures.get(figureId)
+  if (official) return { ok: true, value: official }
+
+  const name = getString(figure.name)
+  const era = getString(figure.era)
+  if (!name) return { ok: false, error: 'Custom historical figure name is required.' }
+  if (!era) return { ok: false, error: 'Custom historical figure era is required.' }
+  if (name.length > 24) return { ok: false, error: 'Custom historical figure name is too long.' }
+  if (era.length > 20) return { ok: false, error: 'Custom historical figure era is too long.' }
+  if (isPostQingEra(era)) {
+    return { ok: false, error: 'Only pre-Qing historical figures are supported in this MVP.' }
+  }
+
+  return {
+    ok: true,
+    value: {
+      id: isCustomFigureId(figureId) ? figureId : makeCustomFigureId(name, era),
+      name,
+      era,
+      cover: 'covers/zhugeliang.svg',
+    },
   }
 }
 
@@ -229,6 +269,48 @@ function getString(value: unknown) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+function isCustomFigureId(value: string) {
+  return /^custom-[a-z0-9-]+$/.test(value)
+}
+
+function makeCustomFigureId(name: string, era: string) {
+  const seed = `${name}-${era}`.trim() || 'figure'
+  const encoded = Array.from(seed)
+    .map((char) => char.codePointAt(0)?.toString(36) ?? '')
+    .filter(Boolean)
+    .join('-')
+    .replace(/-+/g, '-')
+    .slice(0, 60)
+    .replace(/-$/, '')
+  return `custom-${encoded || 'figure'}`
+}
+
+function isPostQingEra(era: string) {
+  return /(清|民国|近代|现代|当代|共和国|新中国|中华人民共和国)/.test(era)
+}
+
+function normalizeGeneratedDream(
+  dream: unknown,
+  fixed: {
+    dreamId: string
+    figureId: string
+    figureName: string
+    era: string
+    cover: string
+  },
+) {
+  if (!isRecord(dream)) return dream
+  return {
+    ...dream,
+    id: fixed.dreamId,
+    source: 'ai',
+    figureId: fixed.figureId,
+    figureName: fixed.figureName,
+    era: fixed.era,
+    cover: fixed.cover,
+  }
 }
 
 function extractOutputText(data: unknown): string {

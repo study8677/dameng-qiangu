@@ -16,6 +16,28 @@ describe('DreamLevel schema', () => {
     const malformed = { ...officialDreams[0], nodes: [] }
     expect(dreamLevelSchema.safeParse(malformed).success).toBe(false)
   })
+
+  it('accepts a playable custom historical figure dream', () => {
+    const customDream = {
+      ...officialDreams[0],
+      id: 'local-custom-su-shi',
+      source: 'local',
+      figureId: 'custom-su-shi',
+      figureName: '苏轼',
+      era: '北宋',
+      tags: ['自定义', '词人'],
+      cover: 'covers/zhugeliang.svg',
+    }
+
+    const parsed = dreamLevelSchema.safeParse(customDream)
+    expect(parsed.success).toBe(true)
+    if (!parsed.success) return
+    expect(validateDreamGraph(parsed.data).ok).toBe(true)
+
+    const decoded = decodeSharedDream(encodeSharedDream(parsed.data))
+    expect(decoded.ok).toBe(true)
+    if (decoded.ok) expect(decoded.dream.figureName).toBe('苏轼')
+  })
 })
 
 describe('game engine', () => {
@@ -26,6 +48,7 @@ describe('game engine', () => {
     expect(next.currentNodeId).toBe('n2')
     expect(next.stats.courage).toBeGreaterThan(run.stats.courage)
     expect(next.history).toHaveLength(1)
+    expect(next.history[0].result).toContain('草庐门开')
   })
 
   it('reaches an ending', () => {

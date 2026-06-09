@@ -49,6 +49,7 @@ export function applyChoice(dream: DreamLevel, run: PlayerRun, choiceId: string)
         nodeTitle: node.title,
         choiceId: choice.id,
         choiceLabel: choice.label,
+        result: choice.result,
       },
     ],
   }

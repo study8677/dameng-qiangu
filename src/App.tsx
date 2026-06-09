@@ -29,7 +29,7 @@ import {
   saveGeneratedDream,
   type SavedDream,
 } from './lib/storage'
-import type { Choice, DreamLevel, FigureId, PlayerRun } from './types'
+import type { Choice, DreamLevel, HistoricalFigure, OfficialFigureId, PlayerRun } from './types'
 
 type Route =
   | { name: 'home' }
@@ -43,6 +43,8 @@ type CreateStatus =
   | { state: 'loading' }
   | { state: 'error'; message: string }
   | { state: 'success'; dream: SavedDream }
+
+type FigureMode = 'official' | 'custom'
 
 const officialDreamById = new Map(officialDreams.map((dream) => [dream.id, dream]))
 
@@ -208,16 +210,32 @@ function HomePage() {
 
 function CreatePage() {
   const initialFigure = getFigureFromHash() ?? 'zhugeliang'
-  const [figureId, setFigureId] = useState<FigureId>(initialFigure)
+  const [figureMode, setFigureMode] = useState<FigureMode>('official')
+  const [figureId, setFigureId] = useState<OfficialFigureId>(initialFigure)
+  const [customName, setCustomName] = useState('苏轼')
+  const [customEra, setCustomEra] = useState('北宋')
+  const [customTags, setCustomTags] = useState('词人,文臣')
+  const [customSummary, setCustomSummary] = useState('在贬谪、才名与家国之间寻找旷达之道。')
   const [theme, setTheme] = useState('功业未竟')
   const [style, setStyle] = useState('庄严')
   const [length, setLength] = useState('短篇')
   const [notes, setNotes] = useState('')
   const [status, setStatus] = useState<CreateStatus>({ state: 'idle' })
 
-  const figure = figures.find((item) => item.id === figureId) ?? figures[0]
+  const officialFigure = figures.find((item) => item.id === figureId) ?? figures[0]
+  const customFigure = useMemo(
+    () => buildCustomFigure(customName, customEra, customTags, customSummary),
+    [customEra, customName, customSummary, customTags],
+  )
+  const figure = figureMode === 'official' ? officialFigure : customFigure
 
   async function onGenerate() {
+    const customError = figureMode === 'custom' ? validateCustomFigure(figure) : null
+    if (customError) {
+      setStatus({ state: 'error', message: customError })
+      return
+    }
+
     setStatus({ state: 'loading' })
     try {
       const dream = await generateDream({ figure, theme, style, length, notes })
@@ -230,12 +248,24 @@ function CreatePage() {
   }
 
   function saveLocalSample() {
-    const base = officialDreamById.get(figure.officialDreamId) ?? officialDreams[0]
+    if (figureMode === 'custom') {
+      const customError = validateCustomFigure(figure)
+      if (customError) {
+        setStatus({ state: 'error', message: customError })
+        return
+      }
+
+      const saved = saveGeneratedDream(buildCustomSampleDream(figure, theme))
+      setStatus({ state: 'success', dream: saved })
+      return
+    }
+
+    const base = officialDreamById.get(officialFigure.officialDreamId) ?? officialDreams[0]
     const cloned: DreamLevel = {
       ...base,
-      id: `local-${figure.id}-${Date.now()}`,
+      id: `local-${officialFigure.id}-${Date.now()}`,
       source: 'local',
-      title: `${figure.name} · ${theme}`,
+      title: `${officialFigure.name} · ${theme}`,
       summary: `基于《${base.title}》生成的本地样例，可先试玩和分享。`,
     }
     const saved = saveGeneratedDream(cloned)
@@ -247,16 +277,61 @@ function CreatePage() {
       <section className="panel create-panel">
         <p className="eyebrow">AI 创作自己的历史人物梦境</p>
         <h1>选择人物，写下你想让大家游玩的梦。</h1>
-        <label>
-          历史人物
-          <select value={figureId} onChange={(event) => setFigureId(event.target.value as FigureId)}>
-            {figures.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} · {item.era}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="mode-tabs" aria-label="人物来源">
+          <button
+            className={figureMode === 'official' ? 'active' : ''}
+            type="button"
+            aria-pressed={figureMode === 'official'}
+            onClick={() => setFigureMode('official')}
+          >
+            官方人物
+          </button>
+          <button
+            className={figureMode === 'custom' ? 'active' : ''}
+            type="button"
+            aria-pressed={figureMode === 'custom'}
+            onClick={() => setFigureMode('custom')}
+          >
+            自定义人物
+          </button>
+        </div>
+        {figureMode === 'official' ? (
+          <label>
+            历史人物
+            <select
+              value={figureId}
+              onChange={(event) => setFigureId(event.target.value as OfficialFigureId)}
+            >
+              {figures.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} · {item.era}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <div className="custom-figure-grid">
+            <label>
+              人物姓名
+              <input value={customName} onChange={(event) => setCustomName(event.target.value)} />
+            </label>
+            <label>
+              所处时代
+              <input value={customEra} onChange={(event) => setCustomEra(event.target.value)} />
+            </label>
+            <label>
+              人物标签
+              <input value={customTags} onChange={(event) => setCustomTags(event.target.value)} />
+            </label>
+            <label>
+              人物简介
+              <textarea
+                value={customSummary}
+                onChange={(event) => setCustomSummary(event.target.value)}
+              />
+            </label>
+          </div>
+        )}
         <label>
           梦境主题
           <input value={theme} onChange={(event) => setTheme(event.target.value)} />
@@ -320,7 +395,8 @@ function CreatePage() {
         <h2>{figure.name}</h2>
         <p>{figure.summary}</p>
         <ul>
-          <li>只允许生成清朝以前历史人物梦境。</li>
+          <li>官方人物和自定义人物都可以生成梦境。</li>
+          <li>自定义人物仍限制为清朝以前历史人物。</li>
           <li>AI 返回结构化关卡 JSON，前端校验后才保存。</li>
           <li>第一版不做账号，分享靠压缩链接。</li>
         </ul>
@@ -477,6 +553,12 @@ function DreamPlayer({ dream, shared = false }: { dream: DreamLevel; shared?: bo
               <span>{dream.figureName}</span>
               <span>{getEndingProgressLabel(dream, run)}</span>
             </div>
+            {run.history.at(-1)?.result && (
+              <aside className="echo-panel">
+                <strong>上一念回响</strong>
+                <p>{run.history.at(-1)?.result}</p>
+              </aside>
+            )}
             <article className="event-card">
               <p className="eyebrow">梦境节点</p>
               <h2>{node.title}</h2>
@@ -539,7 +621,7 @@ function EndingPanel({ dream, run }: { dream: DreamLevel; run: PlayerRun }) {
       <div className="history-list">
         {run.history.map((item, index) => (
           <span key={`${item.nodeId}-${item.choiceId}`}>
-            {index + 1}. {item.choiceLabel}
+            {index + 1}. {item.choiceLabel}：{item.result}
           </span>
         ))}
       </div>
@@ -555,15 +637,199 @@ function EndingPanel({ dream, run }: { dream: DreamLevel; run: PlayerRun }) {
   )
 }
 
-function getFigureFromHash(): FigureId | null {
+function getFigureFromHash(): OfficialFigureId | null {
   const query = window.location.hash.split('?')[1]
   if (!query) return null
   const params = new URLSearchParams(query)
   const value = params.get('figure')
-  return figures.some((figure) => figure.id === value) ? (value as FigureId) : null
+  return figures.some((figure) => figure.id === value) ? (value as OfficialFigureId) : null
 }
 
 function resolveCover(cover: string) {
   const safeCover = cover.startsWith('covers/') ? cover : 'covers/zhugeliang.svg'
   return `${import.meta.env.BASE_URL}${safeCover}`
+}
+
+function buildCustomFigure(name: string, era: string, tags: string, summary: string): HistoricalFigure {
+  const trimmedName = name.trim()
+  const trimmedEra = era.trim()
+  return {
+    id: makeCustomFigureId(trimmedName, trimmedEra),
+    name: trimmedName,
+    era: trimmedEra,
+    tags: parseCustomTags(tags),
+    summary: summary.trim() || '一位清朝以前历史人物，在关键梦境中面对命运抉择。',
+    cover: 'covers/zhugeliang.svg',
+    officialDreamId: '',
+    custom: true,
+  }
+}
+
+function parseCustomTags(input: string) {
+  const tags = input
+    .split(/[,\s，、]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => item.slice(0, 12))
+    .slice(0, 4)
+  return tags.length ? tags : ['自定义']
+}
+
+function makeCustomFigureId(name: string, era: string): `custom-${string}` {
+  const seed = `${name}-${era}`.trim() || 'figure'
+  const encoded = Array.from(seed)
+    .map((char) => char.codePointAt(0)?.toString(36) ?? '')
+    .filter(Boolean)
+    .join('-')
+    .replace(/-+/g, '-')
+    .slice(0, 60)
+    .replace(/-$/, '')
+  return `custom-${encoded || 'figure'}`
+}
+
+function validateCustomFigure(figure: HistoricalFigure) {
+  if (!figure.name) return '请填写自定义人物姓名。'
+  if (!figure.era) return '请填写自定义人物所处时代。'
+  if (/(清|民国|近代|现代|当代|共和国|新中国|中华人民共和国)/.test(figure.era)) {
+    return 'MVP 只支持清朝以前历史人物，请更换人物时代。'
+  }
+  return null
+}
+
+function buildCustomSampleDream(figure: HistoricalFigure, theme: string): DreamLevel {
+  return {
+    schemaVersion: 'dream-level-v1',
+    id: `local-${figure.id}-${Date.now()}`,
+    source: 'local',
+    title: `${figure.name} · ${theme || '未竟之梦'}`,
+    summary: `围绕${figure.name}的自定义模板梦境，可先试玩、保存和分享。`,
+    figureId: figure.id,
+    figureName: figure.name,
+    era: figure.era,
+    cover: figure.cover,
+    tags: figure.tags,
+    initialStats: {
+      wisdom: 58,
+      courage: 54,
+      sanity: 52,
+      reputation: 48,
+      fate: 24,
+    },
+    startNodeId: 'n1',
+    nodes: [
+      {
+        id: 'n1',
+        title: '梦门初启',
+        body: `${figure.era}的夜色压在案前。你成为${figure.name}，眼前的梦境只剩一个问题：${theme || '这一生该如何被后世记住'}？`,
+        choices: [
+          customChoice('c1', '直面危局', '把自己推到风暴正中', 'n2', {
+            courage: 7,
+            reputation: 3,
+            fate: 5,
+          }),
+          customChoice('c2', '先问人心', '从众人的恐惧里寻找答案', 'n3', {
+            wisdom: 5,
+            sanity: 4,
+          }),
+          customChoice('c3', '暂避锋芒', '退到暗处等待时机', 'e2', {
+            sanity: 3,
+            courage: -7,
+          }),
+        ],
+      },
+      {
+        id: 'n2',
+        title: '风雷入局',
+        body: '局势骤然逼近，旧友、敌手与百姓都把目光投向你。每一个选择都会写进梦里的史册。',
+        choices: [
+          customChoice('c1', '孤注一掷', '以胆识撕开困局', 'e1', {
+            courage: 8,
+            fate: 8,
+          }),
+          customChoice('c2', '借势而行', '让盟友承担一部分命运', 'n3', {
+            wisdom: 5,
+            reputation: 4,
+          }),
+          customChoice('c3', '急求虚名', '用声望掩盖真实危机', 'e3', {
+            reputation: 4,
+            sanity: -10,
+          }),
+        ],
+      },
+      {
+        id: 'n3',
+        title: '史册将明',
+        body: '梦境的最后一页尚未落墨。你看见不同结局在灯影里重叠，等待你亲手选定。',
+        choices: [
+          customChoice('c1', '守住本心', '把选择交还给良知', 'e4', {
+            sanity: 8,
+            wisdom: 3,
+          }),
+          customChoice('c2', '承担代价', '让个人命运为大局让路', 'e1', {
+            courage: 6,
+            reputation: 5,
+          }),
+          customChoice('c3', '随波逐势', '用轻松换走沉重责任', 'e3', {
+            fate: 7,
+            reputation: -8,
+          }),
+        ],
+      },
+    ],
+    endings: [
+      {
+        id: 'e1',
+        title: '一念开山',
+        body: `${figure.name}承担了最沉重的代价，也把梦境推向更开阔的后世。史官写下你的名字时，墨色仍带着风雷。`,
+        tone: 'bright',
+      },
+      {
+        id: 'e2',
+        title: '暗处余声',
+        body: '你避开了最锋利的命运，也错过了最能改变局势的一刻。梦醒后，仍有回声在暗处徘徊。',
+        tone: 'quiet',
+      },
+      {
+        id: 'e3',
+        title: '浮名成锁',
+        body: '声名短暂照亮了你，却也锁住了你。史册没有遗忘，只是写得格外冷。',
+        tone: 'warning',
+      },
+      {
+        id: 'e4',
+        title: '本心如灯',
+        body: '你没有赢下所有局势，却守住了最难被夺走的东西。梦境暗下去时，本心仍亮着。',
+        tone: 'bright',
+      },
+    ],
+  }
+}
+
+function customChoice(
+  id: string,
+  label: string,
+  intent: string,
+  targetId: string,
+  effects: DreamLevel['nodes'][number]['choices'][number]['effects'],
+) {
+  const names: Record<string, string> = {
+    wisdom: '智慧',
+    courage: '胆识',
+    sanity: '心性',
+    reputation: '声望',
+    fate: '天命偏差',
+  }
+  const statEcho = Object.entries(effects)
+    .filter(([, value]) => typeof value === 'number' && value !== 0)
+    .map(([key, value]) => `${names[key] ?? key}${value > 0 ? '+' : ''}${value}`)
+    .join(' / ')
+  return {
+    id,
+    label,
+    intent,
+    targetId,
+    effects,
+    preview: intent,
+    result: `你选择“${label}”，${intent}。梦境随之改写，${statEcho || '命运偏向了新的方向'}。`,
+  }
 }

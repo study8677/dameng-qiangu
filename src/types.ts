@@ -1,10 +1,12 @@
-export type FigureId =
+export type OfficialFigureId =
   | 'confucius'
   | 'quyuan'
   | 'zhugeliang'
   | 'libai'
   | 'yuefei'
   | 'wangyangming'
+
+export type FigureId = OfficialFigureId | `custom-${string}`
 
 export type StatKey = 'wisdom' | 'courage' | 'sanity' | 'reputation' | 'fate'
 
@@ -20,6 +22,7 @@ export type HistoricalFigure = {
   summary: string
   cover: string
   officialDreamId: string
+  custom?: boolean
 }
 
 export type Choice = {
@@ -28,6 +31,7 @@ export type Choice = {
   intent: string
   targetId: string
   preview: string
+  result: string
   effects: Partial<StatBlock>
 }
 
@@ -71,6 +75,7 @@ export type PlayerRun = {
     nodeTitle: string
     choiceId: string
     choiceLabel: string
+    result: string
   }>
   endingId: string | null
 }

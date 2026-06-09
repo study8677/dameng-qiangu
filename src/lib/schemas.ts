@@ -1,13 +1,12 @@
 import { z } from 'zod'
+import type { FigureId } from '../types'
 
-export const figureIdSchema = z.enum([
-  'confucius',
-  'quyuan',
-  'zhugeliang',
-  'libai',
-  'yuefei',
-  'wangyangming',
-])
+export const figureIdSchema = z
+  .string()
+  .min(1)
+  .max(80)
+  .regex(/^(confucius|quyuan|zhugeliang|libai|yuefei|wangyangming|custom-[a-z0-9-]+)$/)
+  .transform((value) => value as FigureId)
 
 export const statBlockSchema = z.object({
   wisdom: z.number().int().min(0).max(100),
@@ -31,6 +30,7 @@ export const choiceSchema = z.object({
   intent: z.string().min(1).max(80),
   targetId: z.string().min(1),
   preview: z.string().min(1).max(90),
+  result: z.string().min(1).max(180).default('梦境的走向悄然改变。'),
   effects: effectBlockSchema.partial(),
 })
 
@@ -55,7 +55,7 @@ export const dreamLevelSchema = z.object({
   title: z.string().min(1).max(50),
   summary: z.string().min(1).max(180),
   figureId: figureIdSchema,
-  figureName: z.string().min(1).max(10),
+  figureName: z.string().min(1).max(24),
   era: z.string().min(1).max(20),
   cover: z.string().min(1),
   tags: z.array(z.string().min(1).max(12)).min(1).max(6),

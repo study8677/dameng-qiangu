@@ -1,61 +1,67 @@
-# 大梦千古
+# Dameng Qiangu
 
-> AI 历史伟人梦境互动游戏。进入清朝以前伟大人物的关键一梦，用选择改变数值、分支和结局；也可以让 AI 帮你制作自己的历史人物梦境，并用链接分享给别人玩。
+[English](README.md) | [简体中文](README.zh-CN.md)
 
-![大梦千古封面](public/covers/zhugeliang.svg)
+[![Deploy GitHub Pages](https://github.com/study8677/dameng-qiangu/actions/workflows/deploy.yml/badge.svg)](https://github.com/study8677/dameng-qiangu/actions/workflows/deploy.yml)
+[![CI](https://github.com/study8677/dameng-qiangu/actions/workflows/ci.yml/badge.svg)](https://github.com/study8677/dameng-qiangu/actions/workflows/ci.yml)
+![License](https://img.shields.io/badge/license-MIT-1c524c)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-Structured%20Outputs-111827)
 
-**English:** AI-powered historical interactive fiction game built with Vite, React, TypeScript, Zod, GitHub Pages, and a Vercel OpenAI proxy.
+**AI-native historical interactive fiction.** Enter the dreams of great pre-Qing historical figures, make hard choices at the turning points of their lives, and create your own shareable dream levels with AI. Creators can start from the official cast or define a custom pre-Qing historical figure.
 
-> Demo: after GitHub Pages is enabled, the live site will be available from the repository Pages URL.
+[Play the live demo](https://study8677.github.io/dameng-qiangu/) · [Read the architecture](docs/ARCHITECTURE.md) · [View the roadmap](docs/ROADMAP.md)
 
-## Why It Exists
+![Dameng Qiangu preview](docs/assets/social-preview.svg)
 
-多数 AI 叙事产品像聊天，缺少稳定规则；多数互动小说创作门槛又太高。**大梦千古**把二者结合起来：
+## Why It Is Different
 
-- AI 负责把用户想法生成结构化梦境关卡。
-- 游戏引擎负责执行节点、选择、数值和结局。
-- 用户不需要账号，生成内容默认保存在本机。
-- 分享链接内含压缩后的梦境 JSON，别人打开即可游玩。
+Most AI story products feel like chat. Most interactive fiction tools require a lot of authoring work. Dameng Qiangu sits between them:
 
-第一版聚焦 **清朝以前的历史伟人梦境**，避免泛题材失焦。
+- AI generates structured `DreamLevel` data, not executable code.
+- A deterministic game engine owns nodes, choices, stats, endings, and sharing.
+- Official dreams are hand-authored, so the game is playable without any AI proxy.
+- User-created dreams stay in `localStorage` by default and can be shared through compressed URL links.
+- The theme is intentionally focused: great historical figures before the Qing dynasty.
 
-## Features
+## Gameplay
 
-- 6 个官方默认梦境：孔子、屈原、诸葛亮、李白、岳飞、王阳明。
-- 选择闯关玩法：事件卡、2-4 个选项、五维数值、多结局。
-- AI 制作梦境：选择人物、主题、风格、长度，生成可玩的关卡 JSON。
-- 本地私密保存：无账号、无数据库，使用 `localStorage`。
-- 分享给大家玩：用 `lz-string` 压缩梦境到 URL hash。
-- 安全 AI 代理：OpenAI key 只放在 Vercel Serverless API。
-- GitHub Pages 友好：前端完全静态，使用 hash 路由。
+The MVP ships with six official dreams:
 
-## Demo Flow
+| Figure | Era | Official dream |
+| --- | --- | --- |
+| Confucius | Spring and Autumn | `Apricot Altar: Asking Ritual` |
+| Qu Yuan | Warring States | `The Waking Soul at Miluo` |
+| Zhuge Liang | Three Kingdoms | `The Last Lamp at Wuzhang Plains` |
+| Li Bai | Tang | `Drunken Moon over Chang'an` |
+| Yue Fei | Song | `Iron Cavalry at Wind-Wave Pavilion` |
+| Wang Yangming | Ming | `The Heart-Lamp at Longchang` |
 
-```text
-首页选择伟人
-→ 进入官方梦境
-→ 阅读事件卡
-→ 选择行动
-→ 智慧 / 胆识 / 心性 / 声望 / 天命偏差变化
-→ 打出不同结局
+Each dream has 5-7 nodes, 2-4 choices per node, five mutable stats, and at least three reachable endings. Every choice now produces an immediate story consequence called **Echo of the Last Thought**, so different routes feel more dramatic even before the final ending.
 
-制作梦境
-→ 选择历史人物
-→ 填写主题和风格
-→ AI 返回 DreamLevel JSON
-→ 本机保存
-→ 复制分享链接
-→ 别人打开链接直接游玩
-```
+## AI Dream Creator
+
+Creators choose an official figure or define a custom pre-Qing historical figure, then set the theme, tone, length, and extra notes. The Vercel API proxy asks OpenAI for strict JSON and the frontend validates the result with Zod before saving it.
+
+The AI is limited to:
+
+- pre-Qing historical figure dreams,
+- official or custom historical figures,
+- structured `DreamLevel` JSON,
+- playable branching nodes and endings,
+- narrative text only, never executable logic.
+
+Without a configured AI proxy, players can still play official dreams and save a local sample dream.
 
 ## Tech Stack
 
-- Frontend: Vite, React, TypeScript, Tailwind CSS
-- Validation: Zod
-- Sharing: lz-string URL compression
-- AI Proxy: Vercel Serverless Function + OpenAI Responses API
-- Tests: Vitest, Playwright
-- Deploy: GitHub Pages
+- **Frontend:** Vite, React, TypeScript, Tailwind CSS
+- **Validation:** Zod schemas for all dream data
+- **Sharing:** `lz-string` compressed URL hash payloads
+- **AI proxy:** Vercel Serverless Function + OpenAI Responses API Structured Outputs
+- **Testing:** Vitest and Playwright
+- **Hosting:** GitHub Pages for the static app
 
 ## Quick Start
 
@@ -64,7 +70,7 @@ npm install
 npm run dev
 ```
 
-Run checks:
+Run the main checks:
 
 ```bash
 npm run build
@@ -83,20 +89,19 @@ OPENAI_MODEL=gpt-4o-mini
 ALLOWED_ORIGIN=https://your-github-username.github.io
 ```
 
-Then set the frontend environment variable:
+Then set the frontend variable:
 
 ```bash
 VITE_AI_PROXY_URL=https://your-vercel-project.vercel.app/api/generate-dream
 ```
 
-Without the proxy, all official dreams and local sample generation still work.
-For GitHub Pages, add `VITE_AI_PROXY_URL` as a repository variable so the Pages workflow can inject it during build.
+For GitHub Pages, add `VITE_AI_PROXY_URL` as a repository variable so the deploy workflow can inject it during build.
 
 ## Project Structure
 
 ```text
 api/generate-dream.ts        # Vercel AI proxy
-public/covers/               # Official SVG covers
+public/covers/               # Official SVG cover art
 src/App.tsx                  # Hash-routed app shell
 src/data/dreams.ts           # Official dream levels
 src/data/figures.ts          # Historical figure catalog
@@ -108,43 +113,24 @@ tests/unit/game.test.ts      # Engine/schema/share tests
 tests/e2e/app.spec.ts        # Core browser flows
 ```
 
-## DreamLevel Contract
-
-AI output must be structured game data, not free-form prose:
-
-```ts
-type DreamLevel = {
-  schemaVersion: 'dream-level-v1'
-  title: string
-  figureId: string
-  initialStats: StatBlock
-  startNodeId: string
-  nodes: DreamNode[]
-  endings: DreamEnding[]
-}
-```
-
-The frontend validates AI output with Zod and rejects invalid or unplayable graphs.
-
 ## Roadmap
 
-- V1: Supabase login, public dream plaza, likes and collections.
-- V1.5: creator pages, remix flow, dream quality scoring.
-- V2: more pre-Qing figures, official weekly dreams, richer branching tools.
-- V3: creator monetization and full moderation workflow.
-
-See [docs/ROADMAP.md](docs/ROADMAP.md).
+- **V1:** Supabase login, public dream plaza, likes, collections, moderation states.
+- **V1.5:** Creator pages, remix flow, graph editor, quality scoring.
+- **V2:** More pre-Qing figures, hidden endings, achievements, figure traits.
+- **V3:** Creator marketplace, monetization experiments, full moderation workflow.
 
 ## Contributing
 
-Contributions are welcome. Good first contributions:
+Good first contributions:
 
-- Add a pre-Qing historical figure dream.
-- Improve mobile UI or accessibility.
+- Add a new pre-Qing official dream.
+- Improve the mobile reading experience.
 - Add validation for edge-case dream graphs.
-- Add more Playwright flows.
+- Expand Playwright coverage for sharing and creation flows.
+- Improve English translations for the official dreams.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## Community
 
