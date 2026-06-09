@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-label="岳飞梦境封面">
+  <defs>
+    <linearGradient id="storm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27313f"/>
+      <stop offset="1" stop-color="#8f979d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#storm)"/>
+  <path d="M0 635c150-55 305-38 445 0s300 58 475 0 250-20 280 0v115H0z" fill="#f7f4ed" opacity=".86"/>
+  <path d="M565 165v390" stroke="#f7f4ed" stroke-width="24" stroke-linecap="round"/>
+  <path d="M565 190c150 10 195 62 320 42-36 80-112 123-320 116z" fill="#9c2f35"/>
+  <path d="M405 540c85-118 186-162 302-132" fill="none" stroke="#17202c" stroke-width="26" stroke-linecap="round"/>
+  <path d="M472 422l135 88 148-170" fill="none" stroke="#f2dfa9" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="90" y="150" fill="#f7f4ed" font-family="serif" font-size="78" font-weight="700">风波铁马</text>
+  <text x="96" y="218" fill="#f2dfa9" font-family="serif" font-size="38">岳飞 · 宋</text>
+</svg>

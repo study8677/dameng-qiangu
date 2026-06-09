@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-label="孔子梦境封面">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f0da"/>
+      <stop offset="1" stop-color="#d8e0d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#bg)"/>
+  <circle cx="920" cy="170" r="150" fill="#c84b31" opacity=".16"/>
+  <path d="M105 610h990" stroke="#1c524c" stroke-width="18" stroke-linecap="round"/>
+  <path d="M230 610c120-210 260-315 420-315s300 105 420 315" fill="none" stroke="#1c524c" stroke-width="34" stroke-linecap="round"/>
+  <rect x="420" y="155" width="360" height="295" rx="8" fill="#f8f5ea" stroke="#233242" stroke-width="14"/>
+  <path d="M495 220h210M495 280h210M495 340h150" stroke="#9c2f35" stroke-width="18" stroke-linecap="round"/>
+  <path d="M350 515h500" stroke="#233242" stroke-width="22" stroke-linecap="round"/>
+  <text x="120" y="155" fill="#19222e" font-family="serif" font-size="76" font-weight="700">杏坛问礼</text>
+  <text x="126" y="222" fill="#1c524c" font-family="serif" font-size="38">孔子 · 春秋</text>
+</svg>

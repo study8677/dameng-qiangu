@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-label="屈原梦境封面">
+  <defs>
+    <linearGradient id="water" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14233b"/>
+      <stop offset="1" stop-color="#315c68"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#water)"/>
+  <circle cx="920" cy="150" r="96" fill="#f3e7ba"/>
+  <path d="M0 560c160-55 270 55 430 0s280 55 430 0 240-20 340 15v175H0z" fill="#e8dbc2" opacity=".24"/>
+  <path d="M0 640c160-55 270 55 430 0s280 55 430 0 240-20 340 15v95H0z" fill="#e8dbc2" opacity=".18"/>
+  <path d="M515 185c-70 92-92 190-66 294 30 122 104 151 104 151s58-82 54-186c-4-96-44-182-92-259z" fill="#f4f0df"/>
+  <path d="M528 230c78 96 148 162 250 225" stroke="#c84b31" stroke-width="20" stroke-linecap="round" fill="none"/>
+  <text x="92" y="142" fill="#f7f4ed" font-family="serif" font-size="78" font-weight="700">汨罗醒魂</text>
+  <text x="98" y="210" fill="#f3e7ba" font-family="serif" font-size="38">屈原 · 战国</text>
+</svg>

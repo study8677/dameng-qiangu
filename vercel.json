@@ -1,0 +1,8 @@
+{
+  "functions": {
+    "api/generate-dream.ts": {
+      "maxDuration": 30
+    }
+  },
+  "headers": []
+}

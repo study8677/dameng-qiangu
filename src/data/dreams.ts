@@ -1,0 +1,354 @@
+import type { DreamLevel, StatBlock } from '../types'
+
+const baseStats: StatBlock = {
+  wisdom: 50,
+  courage: 50,
+  sanity: 50,
+  reputation: 50,
+  fate: 20,
+}
+
+export const officialDreams: DreamLevel[] = [
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-confucius',
+    source: 'official',
+    title: '杏坛问礼',
+    summary: '梦入春秋乱世，于礼崩乐坏中求仁、正名、行道。',
+    figureId: 'confucius',
+    figureName: '孔子',
+    era: '春秋',
+    cover: 'covers/confucius.svg',
+    tags: ['圣贤', '礼乐', '仁政'],
+    initialStats: { ...baseStats, wisdom: 62, sanity: 66, reputation: 46 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '鲁都晨钟', '朝堂争礼，市井失序。你梦见鲁都清晨的钟声迟迟不响，弟子、百姓与贵族都在等你开口。', [
+        choice('c1', '入朝正名', '以名分重整朝堂秩序', 'n2', { wisdom: 6, reputation: 4, fate: 5 }),
+        choice('c2', '赴市问民', '先听民间困苦', 'n3', { sanity: 4, reputation: 5 }),
+        choice('c3', '归坛授徒', '让弟子承接大道', 'n4', { wisdom: 4, sanity: 5 }),
+      ]),
+      node('n2', '君前论政', '君问治国之本。左右都盼你说出能立刻止乱的办法。', [
+        choice('c1', '以德为政', '提升德政声望', 'n5', { wisdom: 4, sanity: 5, reputation: 5 }),
+        choice('c2', '先正名分', '用制度约束乱源', 'n5', { wisdom: 6, fate: 6 }),
+        choice('c3', '严刑止乱', '以强硬换短期秩序', 'e3', { courage: 3, sanity: -10, fate: 16 }),
+      ]),
+      node('n3', '市井饥声', '民困于赋役，孩童在旧礼器旁讨食。', [
+        choice('c1', '劝君薄敛', '以民生换取民望', 'n5', { reputation: 8, sanity: 4 }),
+        choice('c2', '设学化民', '用教育留下长线种子', 'n4', { wisdom: 6, reputation: 3 }),
+        choice('c3', '独善其身', '避开乱世冲突', 'e2', { sanity: 3, reputation: -8 }),
+      ]),
+      node('n4', '杏坛夜课', '弟子问何为仁。灯下每个人都像在等待后世的答案。', [
+        choice('c1', '克己复礼', '以内省重建秩序', 'n6', { sanity: 7, wisdom: 3 }),
+        choice('c2', '己所不欲', '以共情开示众人', 'n6', { reputation: 6, sanity: 5 }),
+        choice('c3', '只授辞章', '避开现实艰难', 'e2', { wisdom: 2, courage: -8 }),
+      ]),
+      node('n5', '周礼残卷', '旧礼与新世相冲。你看见残卷上的字正在变淡。', [
+        choice('c1', '取礼之义', '保留精神而不拘旧形', 'n6', { wisdom: 8, sanity: 3 }),
+        choice('c2', '拘泥旧制', '守住形式却失去人心', 'e3', { reputation: -8, fate: 12 }),
+        choice('c3', '因时损益', '让礼乐适应新世', 'e1', { wisdom: 9, reputation: 6, fate: 8 }),
+      ]),
+      node('n6', '辙迹千里', '列国未必用道。车辙通向风雪，也通向后世。', [
+        choice('c1', '继续周游', '明知不可而为之', 'e1', { courage: 7, reputation: 4 }),
+        choice('c2', '删述经典', '把未竟之道交给文字', 'e4', { wisdom: 8, sanity: 5 }),
+        choice('c3', '叹道不行', '在失望中守住孤灯', 'e2', { sanity: -4, fate: 6 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '仁风初起', '道虽未尽行，仁政的种子已入人心。梦醒时，钟声终于在远处响起。', 'bright'),
+      ending('e2', '孤灯守道', '世不相容，你仍守住一盏灯。它不照鲁都，却照见后来读书人的路。', 'quiet'),
+      ending('e3', '礼成空壳', '你重形轻仁，秩序反成束缚。梦境里的礼器完整，人的心却碎了。', 'warning'),
+      ending('e4', '万世师表', '一生未遇明君，经典却传千古。你在杏坛回身，看见万世弟子如星。', 'bright'),
+    ],
+  },
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-quyuan',
+    source: 'official',
+    title: '汨罗醒魂',
+    summary: '梦回楚宫与江畔，在忠谏、流放与家国之间作选择。',
+    figureId: 'quyuan',
+    figureName: '屈原',
+    era: '战国',
+    cover: 'covers/quyuan.svg',
+    tags: ['楚辞', '忠魂', '家国'],
+    initialStats: { ...baseStats, wisdom: 58, courage: 62, sanity: 48, reputation: 44 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '楚宫云暗', '谗言入殿，盟约将改。帷幕后有人低笑，楚国的旗影像水一样摇晃。', [
+        choice('c1', '直言进谏', '以忠言撼动君心', 'n2', { courage: 8, reputation: 3, fate: 5 }),
+        choice('c2', '暗查奸计', '先寻找证据', 'n3', { wisdom: 7, sanity: 2 }),
+        choice('c3', '暂避锋芒', '保全自己等待时机', 'n4', { sanity: 4, courage: -5 }),
+      ]),
+      node('n2', '丹陛孤声', '王意动摇。群臣的目光像刀，只有你的声音还在殿中回响。', [
+        choice('c1', '陈说秦患', '指出长远危机', 'n5', { wisdom: 6, courage: 4 }),
+        choice('c2', '痛斥群臣', '怒火压过策略', 'e3', { courage: 5, reputation: -10, fate: 12 }),
+        choice('c3', '以诗明志', '把忠心藏入辞章', 'n4', { sanity: 4, reputation: 4 }),
+      ]),
+      node('n3', '密简寒光', '你得见卖国证据。竹简上的墨尚未干，门外脚步已经逼近。', [
+        choice('c1', '呈交楚王', '孤注一掷', 'n5', { courage: 7, fate: 8 }),
+        choice('c2', '交予旧友', '借人脉扩散真相', 'n4', { wisdom: 4, reputation: 4 }),
+        choice('c3', '独自藏起', '让真相沉入沉默', 'e2', { sanity: -6, fate: 5 }),
+      ]),
+      node('n4', '泽畔行吟', '流放路远，楚民仍苦。江风吹来稻草与战火的气味。', [
+        choice('c1', '作辞警世', '让文字成为证词', 'n6', { wisdom: 6, reputation: 5 }),
+        choice('c2', '召集贤士', '试图再聚抗秦之力', 'n5', { courage: 5, reputation: 3 }),
+        choice('c3', '沉默远走', '从楚梦中抽身', 'e2', { courage: -7, sanity: 2 }),
+      ]),
+      node('n5', '郢都将倾', '秦兵压境。你看见城墙上的火光，也看见百姓眼中的最后一点信。', [
+        choice('c1', '劝王抗秦', '最后一次争取君心', 'e1', { courage: 7, reputation: 5 }),
+        choice('c2', '护送百姓', '把忠义落到人身上', 'e4', { reputation: 8, sanity: 4 }),
+        choice('c3', '再入朝争', '以身压上最后筹码', 'n6', { courage: 4, fate: 6 }),
+      ]),
+      node('n6', '汨罗江月', '江水照见本心。梦中楚地安静得像一首未写完的辞。', [
+        choice('c1', '以死明志', '用生命完成最后谏言', 'e1', { courage: 9, fate: 8 }),
+        choice('c2', '留诗传魂', '让后世听见楚声', 'e4', { wisdom: 8, reputation: 4 }),
+        choice('c3', '随波忘楚', '放下家国之痛', 'e2', { sanity: 5, reputation: -6 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '忠魂不灭', '身沉江水，清名照彻千年。梦醒后，江面仍有橘花香。', 'tragic'),
+      ending('e2', '远客无声', '你避开风暴，却失去与故国相系的魂。楚地在梦外越走越远。', 'quiet'),
+      ending('e3', '孤愤成祸', '忠言太烈，反被奸人借势驱逐。梦中宫灯一盏盏灭去。', 'warning'),
+      ending('e4', '楚辞长明', '国势难挽，诗魂却为后世点灯。汨罗江水把你的声音带向千年。', 'bright'),
+    ],
+  },
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-zhugeliang',
+    source: 'official',
+    title: '五丈原最后一盏灯',
+    summary: '梦入三国棋盘，于出山、用兵、治蜀之间定天下之策。',
+    figureId: 'zhugeliang',
+    figureName: '诸葛亮',
+    era: '三国',
+    cover: 'covers/zhugeliang.svg',
+    tags: ['谋略', '忠诚', '北伐'],
+    initialStats: { ...baseStats, wisdom: 72, courage: 54, sanity: 58, reputation: 55 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '隆中风起', '刘备三顾草庐。竹叶翻动，梦里的天下已经分成三道阴影。', [
+        choice('c1', '出山相助', '立刻投入乱世', 'n2', { courage: 5, reputation: 5 }),
+        choice('c2', '先问其志', '确认君臣之道', 'n2', { wisdom: 5, sanity: 4 }),
+        choice('c3', '闭门不见', '守住清静人生', 'e2', { sanity: 6, reputation: -8 }),
+      ]),
+      node('n2', '天下三分', '乱世棋势已明。你看见荆州、益州与中原在星图上同时闪烁。', [
+        choice('c1', '联吴抗曹', '借外势破强敌', 'n3', { wisdom: 7, fate: 5 }),
+        choice('c2', '先取荆益', '稳固根基', 'n4', { wisdom: 5, reputation: 3 }),
+        choice('c3', '急攻中原', '提前改写棋局', 'e3', { courage: 6, fate: 18, sanity: -6 }),
+      ]),
+      node('n3', '赤壁东风', '江面战机一瞬。火光尚未出现，东风已在梦中吹起。', [
+        choice('c1', '借势火攻', '顺势完成联盟之战', 'n4', { wisdom: 7, reputation: 4 }),
+        choice('c2', '稳守江岸', '降低风险保全盟约', 'e4', { sanity: 5, fate: 3 }),
+        choice('c3', '独揽功名', '破坏联盟平衡', 'e3', { reputation: -10, fate: 14 }),
+      ]),
+      node('n4', '成都灯火', '蜀中新定，民心未安。城中灯火像一张等待治理的棋盘。', [
+        choice('c1', '明法治蜀', '以制度收拢国力', 'n5', { wisdom: 6, reputation: 4 }),
+        choice('c2', '宽赋养民', '先稳民心', 'n5', { sanity: 5, reputation: 6 }),
+        choice('c3', '任人徇私', '让关系压过法度', 'e3', { reputation: -12, sanity: -5 }),
+      ]),
+      node('n5', '白帝托孤', '先主托付后主。梦中的江水一半是泪，一半是未尽国事。', [
+        choice('c1', '鞠躬尽瘁', '亲自背负国运', 'n6', { courage: 6, reputation: 6 }),
+        choice('c2', '培养群臣', '把国事分给后继者', 'e1', { wisdom: 6, sanity: 5 }),
+        choice('c3', '退居幕后', '保全自己但削弱朝局', 'e2', { sanity: 4, reputation: -8 }),
+      ]),
+      node('n6', '五丈原星', '北伐未竟，星火将熄。你听见帐外风声像一局未完的棋。', [
+        choice('c1', '稳扎稳打', '让蜀汉多留一口气', 'e1', { wisdom: 5, sanity: 3 }),
+        choice('c2', '强行决战', '以命赌一次天命', 'e3', { courage: 8, fate: 18, sanity: -8 }),
+        choice('c3', '传下遗策', '把未来交给后人', 'e4', { wisdom: 8, reputation: 5 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '星火续汉', '大业未成，蜀汉仍因你的治理延续。灯灭时，星图还留下一线微光。', 'bright'),
+      ending('e2', '卧龙长眠', '你守住清静，却错过改变乱世的机会。隆中风声温柔，也空旷。', 'quiet'),
+      ending('e3', '棋差一着', '急功冒进，满盘筹谋毁于一瞬。梦醒时，棋子散落满地。', 'warning'),
+      ending('e4', '遗策流光', '身后之计仍护山河，忠名传世。最后一盏灯没有灭，只是换了人守。', 'bright'),
+    ],
+  },
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-libai',
+    source: 'official',
+    title: '长安醉月',
+    summary: '梦入盛唐长安，在诗、酒、仕途与自由之间追问天命。',
+    figureId: 'libai',
+    figureName: '李白',
+    era: '唐',
+    cover: 'covers/libai.svg',
+    tags: ['诗仙', '盛唐', '自由'],
+    initialStats: { ...baseStats, wisdom: 60, courage: 66, sanity: 46, reputation: 58 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '金殿召诗', '天子召你入宫。金殿如梦，月光却从瓦缝里落到你的酒杯。', [
+        choice('c1', '挥毫献诗', '以才华入局', 'n2', { wisdom: 5, reputation: 7 }),
+        choice('c2', '醉后入殿', '让豪气压过礼法', 'n3', { courage: 6, fate: 8 }),
+        choice('c3', '辞召远游', '把自由放在功名之前', 'n4', { sanity: 6, reputation: -4 }),
+      ]),
+      node('n2', '翰林春宴', '权贵争相结交。你的诗被传唱，你的脚步却被宫墙收紧。', [
+        choice('c1', '守诗人心', '保持锋芒', 'n5', { sanity: 5, wisdom: 4 }),
+        choice('c2', '趋附权门', '换取短暂荣光', 'e3', { reputation: 5, sanity: -12 }),
+        choice('c3', '借酒脱身', '用醉意逃离拘束', 'n3', { courage: 5, fate: 5 }),
+      ]),
+      node('n3', '醉卧花间', '月色照酒杯。梦里的花影像诗句一样一行行展开。', [
+        choice('c1', '即兴成篇', '把醉意化成诗意', 'n5', { wisdom: 6, reputation: 5 }),
+        choice('c2', '嘲笑权贵', '用狂放刺破虚荣', 'n6', { courage: 7, reputation: -2 }),
+        choice('c3', '沉醉不醒', '让才华沉入酒雾', 'e2', { sanity: -10, fate: 6 }),
+      ]),
+      node('n4', '蜀道云深', '山河险绝，诗意奔涌。你在高崖边看见长安像一粒金尘。', [
+        choice('c1', '写尽奇险', '把山河写入长歌', 'n5', { wisdom: 6, reputation: 4 }),
+        choice('c2', '结伴侠游', '把人生交给江湖', 'e4', { courage: 6, sanity: 3 }),
+        choice('c3', '避世山林', '从名声中撤退', 'e2', { sanity: 5, reputation: -8 }),
+      ]),
+      node('n5', '长安夜雨', '盛名之下，仕途逼仄。夜雨落在宫墙上，像一封未寄出的辞呈。', [
+        choice('c1', '请辞远游', '重获天地', 'e1', { sanity: 8, courage: 4 }),
+        choice('c2', '留下求官', '用自由换官位', 'e3', { reputation: 4, sanity: -10 }),
+        choice('c3', '以诗讽世', '让诗歌替你出剑', 'n6', { wisdom: 5, courage: 5 }),
+      ]),
+      node('n6', '江上明月', '风波过后，天地辽阔。月亮在江面上碎成无数个你。', [
+        choice('c1', '放歌江湖', '让诗酒照亮盛唐', 'e1', { sanity: 6, reputation: 4 }),
+        choice('c2', '孤舟问月', '把漂泊写成永恒', 'e4', { wisdom: 5, fate: 5 }),
+        choice('c3', '追逐虚名', '再次被盛名困住', 'e3', { reputation: 3, sanity: -8 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '诗仙归月', '你舍弃樊笼，以诗酒照亮盛唐。月光落下，像一首无人能囚的诗。', 'bright'),
+      ending('e2', '醉梦无归', '才华沉入酒雾，未能化为长歌。杯底只剩没有出口的月影。', 'warning'),
+      ending('e3', '金笼折翼', '名利困住豪情，诗心渐失锋芒。长安很亮，你却看不见星空。', 'tragic'),
+      ending('e4', '孤月长歌', '一生漂泊，却把寂寞写成千古。孤舟远去，江月仍随你同行。', 'quiet'),
+    ],
+  },
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-yuefei',
+    source: 'official',
+    title: '风波铁马',
+    summary: '梦入南宋战场，在家国、军令与忠义之间守护山河。',
+    figureId: 'yuefei',
+    figureName: '岳飞',
+    era: '宋',
+    cover: 'covers/yuefei.svg',
+    tags: ['忠义', '北伐', '山河'],
+    initialStats: { ...baseStats, wisdom: 52, courage: 74, sanity: 56, reputation: 60 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '汤阴誓志', '金兵南下，山河破碎。梦中的铁蹄声从远处压来。', [
+        choice('c1', '投军报国', '把命运交给战场', 'n2', { courage: 7, reputation: 4 }),
+        choice('c2', '护乡练兵', '从乡土中养出军心', 'n2', { wisdom: 3, reputation: 5 }),
+        choice('c3', '隐忍避战', '避开风暴保全自身', 'e2', { sanity: 4, courage: -12 }),
+      ]),
+      node('n2', '背上忠字', '母亲嘱你尽忠。梦里的针锋落下，像山河刻进血肉。', [
+        choice('c1', '铭记家训', '忠义成为底线', 'n3', { sanity: 5, reputation: 4 }),
+        choice('c2', '立誓北伐', '把愿望推向更远处', 'n4', { courage: 6, fate: 6 }),
+        choice('c3', '只求功名', '让名利污染初心', 'e3', { reputation: -8, sanity: -6 }),
+      ]),
+      node('n3', '军营夜令', '士卒疲惫，军纪将乱。粮草不足，民屋就在不远处。', [
+        choice('c1', '严明军纪', '以纪律护住军魂', 'n4', { wisdom: 4, reputation: 5 }),
+        choice('c2', '抚恤士卒', '用仁义稳住队伍', 'n4', { sanity: 4, reputation: 6 }),
+        choice('c3', '纵兵取粮', '短期补给换长期污名', 'e3', { reputation: -12, fate: 10 }),
+      ]),
+      node('n4', '朱仙镇捷', '中原父老相迎。你看见旧山河离你只有一步之遥。', [
+        choice('c1', '乘胜北进', '抓住战机', 'n5', { courage: 7, fate: 8 }),
+        choice('c2', '稳守待援', '保存战果', 'e4', { wisdom: 4, sanity: 4 }),
+        choice('c3', '轻敌冒进', '让热血盖过军略', 'e3', { courage: 5, wisdom: -8 }),
+      ]),
+      node('n5', '十二金牌', '急令催你班师。金牌一面面落下，像雪盖住北方道路。', [
+        choice('c1', '遵诏回朝', '忠于君命', 'n6', { sanity: 3, reputation: 3 }),
+        choice('c2', '抗命北伐', '以战局压过朝命', 'e4', { courage: 8, fate: 18, reputation: -4 }),
+        choice('c3', '密报陈情', '在军令与国事间争取余地', 'n6', { wisdom: 6, fate: 4 }),
+      ]),
+      node('n6', '风波亭雪', '冤狱将成。雪落无声，只有你心里的北伐鼓声仍未停。', [
+        choice('c1', '坦然守节', '以忠义承受结局', 'e1', { sanity: 6, reputation: 8 }),
+        choice('c2', '据理自辩', '为自己和军心留下证词', 'e4', { wisdom: 4, courage: 4 }),
+        choice('c3', '屈身求生', '保命但折损精神', 'e2', { sanity: -10, reputation: -10 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '精忠千秋', '身遭冤狱，忠义却成为山河脊梁。梦外有人仍在低声念着还我河山。', 'tragic'),
+      ending('e2', '残梦无声', '你保全一身，却失去心中山河。风波亭外的雪从此没有尽头。', 'quiet'),
+      ending('e3', '铁骑蒙尘', '功名与失律毁掉一支可战之师。马蹄声乱了，军旗也低下去。', 'warning'),
+      ending('e4', '未竟北望', '北伐未终，遗憾化作后世长叹。你仍向北望，直到梦醒。', 'bright'),
+    ],
+  },
+  {
+    schemaVersion: 'dream-level-v1',
+    id: 'official-wangyangming',
+    source: 'official',
+    title: '龙场心灯',
+    summary: '梦入贬谪荒山，于困厄、讲学、平乱中证悟良知。',
+    figureId: 'wangyangming',
+    figureName: '王阳明',
+    era: '明',
+    cover: 'covers/wangyangming.svg',
+    tags: ['心学', '良知', '知行合一'],
+    initialStats: { ...baseStats, wisdom: 68, courage: 54, sanity: 62, reputation: 43 },
+    startNodeId: 'n1',
+    nodes: [
+      node('n1', '诏狱寒灯', '直言得罪权宦。牢中寒灯摇晃，照见你心中尚未说完的话。', [
+        choice('c1', '坚持上疏', '承担直言代价', 'n2', { courage: 7, reputation: 3 }),
+        choice('c2', '暂忍保身', '避祸但压抑本心', 'e2', { sanity: -7, courage: -6 }),
+        choice('c3', '反省本心', '向内追问为何而言', 'n3', { wisdom: 5, sanity: 5 }),
+      ]),
+      node('n2', '龙场瘴雨', '贬所荒远，生死难测。瘴雨把山路洗得看不清尽头。', [
+        choice('c1', '安顿百姓', '在困厄中先做人事', 'n3', { reputation: 6, sanity: 4 }),
+        choice('c2', '静坐悟道', '在绝境中照见心光', 'n4', { wisdom: 7, sanity: 3 }),
+        choice('c3', '怨天尤人', '让困厄遮蔽本心', 'e2', { sanity: -12, fate: 5 }),
+      ]),
+      node('n3', '山民问学', '众人问圣贤之道。山民不懂经注，却懂苦难。', [
+        choice('c1', '讲致良知', '把学问讲到人心里', 'n5', { wisdom: 5, reputation: 5 }),
+        choice('c2', '因材施教', '让道理能被执行', 'n5', { sanity: 4, reputation: 4 }),
+        choice('c3', '空谈章句', '用辞藻替代行动', 'e3', { wisdom: 2, reputation: -8 }),
+      ]),
+      node('n4', '石棺夜悟', '绝境中忽见心光。你听见内心深处有一句话醒来。', [
+        choice('c1', '心即理', '把天理放回人心', 'n5', { wisdom: 8, sanity: 4 }),
+        choice('c2', '知行合一', '把悟道落到行动', 'n6', { wisdom: 5, courage: 5 }),
+        choice('c3', '只求玄悟', '沉入抽象而远离人事', 'e3', { wisdom: 4, reputation: -6 }),
+      ]),
+      node('n5', '庐陵军鼓', '叛乱骤起，民心惶惶。你发现用兵也要先看人心。', [
+        choice('c1', '安民平乱', '以民心定胜负', 'n6', { wisdom: 5, reputation: 6 }),
+        choice('c2', '先察人心', '分化叛乱根源', 'n6', { wisdom: 7, sanity: 3 }),
+        choice('c3', '滥用威刑', '以恐惧换服从', 'e3', { reputation: -10, fate: 10 }),
+      ]),
+      node('n6', '归途暮云', '功成之后，名议纷起。暮云开合，像人心未定。', [
+        choice('c1', '继续讲学', '把良知传出去', 'e1', { reputation: 7, wisdom: 4 }),
+        choice('c2', '归省本心', '功名之外守住澄明', 'e4', { sanity: 7, wisdom: 3 }),
+        choice('c3', '贪恋功名', '让外名胜过内心', 'e3', { reputation: 3, sanity: -10 }),
+      ]),
+    ],
+    endings: [
+      ending('e1', '心灯万里', '良知之学照见人心，传之后世。龙场的灯不再只照一间草庐。', 'bright'),
+      ending('e2', '困厄迷途', '外境未败你，怨念却遮蔽本心。梦中瘴雨越下越密。', 'warning'),
+      ending('e3', '知行相离', '道理停在口中，未能落到行动。你说得越多，心灯越暗。', 'tragic'),
+      ending('e4', '良知自明', '功名之外，你守住心中澄明。暮云散尽，一点心光如初。', 'quiet'),
+    ],
+  },
+]
+
+function node(id: string, title: string, body: string, choices: DreamLevel['nodes'][number]['choices']) {
+  return { id, title, body, choices }
+}
+
+function choice(
+  id: string,
+  label: string,
+  intent: string,
+  targetId: string,
+  effects: DreamLevel['nodes'][number]['choices'][number]['effects'],
+) {
+  return {
+    id,
+    label,
+    intent,
+    targetId,
+    effects,
+    preview: intent,
+  }
+}
+
+function ending(
+  id: string,
+  title: string,
+  body: string,
+  tone: DreamLevel['endings'][number]['tone'],
+) {
+  return { id, title, body, tone }
+}

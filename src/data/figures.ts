@@ -1,0 +1,58 @@
+import type { HistoricalFigure } from '../types'
+
+export const figures: HistoricalFigure[] = [
+  {
+    id: 'confucius',
+    name: '孔子',
+    era: '春秋',
+    tags: ['思想家', '教育家'],
+    summary: '礼崩乐坏之世的行道者，以仁与礼寻找重建秩序的可能。',
+    cover: 'covers/confucius.svg',
+    officialDreamId: 'official-confucius',
+  },
+  {
+    id: 'quyuan',
+    name: '屈原',
+    era: '战国',
+    tags: ['诗人', '忠臣'],
+    summary: '楚国旧梦里的孤臣，在谗言、流放与家国之间守住清魂。',
+    cover: 'covers/quyuan.svg',
+    officialDreamId: 'official-quyuan',
+  },
+  {
+    id: 'zhugeliang',
+    name: '诸葛亮',
+    era: '三国',
+    tags: ['谋士', '治国'],
+    summary: '隆中棋局与五丈原星火之间，平衡忠诚、谋略与天命。',
+    cover: 'covers/zhugeliang.svg',
+    officialDreamId: 'official-zhugeliang',
+  },
+  {
+    id: 'libai',
+    name: '李白',
+    era: '唐',
+    tags: ['诗人', '游侠'],
+    summary: '盛唐月色里的诗仙，在仕途、自由、诗酒与虚名之间取舍。',
+    cover: 'covers/libai.svg',
+    officialDreamId: 'official-libai',
+  },
+  {
+    id: 'yuefei',
+    name: '岳飞',
+    era: '宋',
+    tags: ['将领', '忠义'],
+    summary: '山河破碎之时的北伐之梦，忠义与改命都要付出代价。',
+    cover: 'covers/yuefei.svg',
+    officialDreamId: 'official-yuefei',
+  },
+  {
+    id: 'wangyangming',
+    name: '王阳明',
+    era: '明',
+    tags: ['思想家', '心学'],
+    summary: '龙场瘴雨中的心灯，在困厄、讲学和平乱中证悟良知。',
+    cover: 'covers/wangyangming.svg',
+    officialDreamId: 'official-wangyangming',
+  },
+]

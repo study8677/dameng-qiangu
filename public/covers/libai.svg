@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-label="李白梦境封面">
+  <defs>
+    <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ece8dc"/>
+      <stop offset="1" stop-color="#acc7ce"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" fill="url(#moon)"/>
+  <circle cx="910" cy="155" r="118" fill="#fff8cf"/>
+  <path d="M0 585c220-90 380 45 600-20s330-40 600 35v150H0z" fill="#1c524c" opacity=".82"/>
+  <path d="M420 490c95-86 180-125 255-117 68 8 108 45 120 112" fill="none" stroke="#9c2f35" stroke-width="28" stroke-linecap="round"/>
+  <path d="M505 315l95 185 95-185" fill="none" stroke="#17202c" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M585 305c60 18 104 18 165 0" stroke="#17202c" stroke-width="18" stroke-linecap="round"/>
+  <text x="90" y="150" fill="#17202c" font-family="serif" font-size="78" font-weight="700">长安醉月</text>
+  <text x="96" y="218" fill="#9c2f35" font-family="serif" font-size="38">李白 · 唐</text>
+</svg>
